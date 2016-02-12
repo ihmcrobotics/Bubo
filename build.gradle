@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 // TODO insert analytics and adsense into javadoc
 
 ext.libpath = file('./').absolutePath
@@ -5,6 +7,8 @@ ext.libpath = file('./').absolutePath
 project.ext.shouldActivateJMEIntegration = {
     rootProject.hasProperty("useJME") && rootProject.useJME.toLowerCase().equals("true")
 }
+
+apply plugin: 'maven-publish'
 
 allprojects {
     apply plugin: 'idea'
@@ -223,3 +227,47 @@ idea {
     }
 }
 
+publishing {
+    publications {
+        publishBuboFatJar(MavenPublication) {
+            groupId 'org.projectbubo'
+            artifactId "ProjectBubo"
+            version "${new SimpleDateFormat("yyMMdd", Locale.getDefault()).format(new Date())}"
+
+            artifact oneJarBin
+
+            artifact oneJarSrc {
+                classifier "sources"
+            }
+
+            pom.withXml {
+                def licenseNode = asNode().appendNode('licenses').appendNode('license')
+                licenseNode.appendNode('name', "Apache License, Version 2.0")
+                licenseNode.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+
+                def depsNode = asNode().appendNode('dependencies')
+
+//                group: 'org.boofcv', name: a, version: '0.19'
+
+                ['ip','io','calibration','geo','recognition','feature','sfm','visualize','openkinect','WebcamCapture'].each { boofDep ->
+                    def newDependencyNode = depsNode.appendNode('dependency')
+                    newDependencyNode.appendNode('groupId', 'org.boofcv')
+                    newDependencyNode.appendNode('artifactId', "${boofDep}")
+                    newDependencyNode.appendNode('version', '0.19')
+                    newDependencyNode.appendNode('scope', 'compile')
+                }
+
+                if(shouldActivateJMEIntegration())
+                {
+                    ['jme3-core', 'jme3-desktop', 'jme3-lwjgl'].each { jmeDep ->
+                        def newDependencyNode = depsNode.appendNode('dependency')
+                        newDependencyNode.appendNode('groupId', 'com.jme3')
+                        newDependencyNode.appendNode('artifactId', "${jmeDep}")
+                        newDependencyNode.appendNode('version', '3.1.0-SNAPSHOT')
+                        newDependencyNode.appendNode('scope', 'compile')
+                    }
+                }
+            }
+        }
+    }
+}
