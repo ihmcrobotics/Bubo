@@ -2,12 +2,24 @@
 
 ext.libpath = file('./').absolutePath
 
+project.ext.shouldActivateJMEIntegration = {
+    rootProject.hasProperty("useJME") && rootProject.useJME.toLowerCase().equals("true")
+}
+
 allprojects {
     apply plugin: 'idea'
     apply plugin: 'eclipse'
 
     group = 'org.projectbubo'
     version = '1-SNAPSHOT'
+
+    if(shouldActivateJMEIntegration()) {
+        repositories {
+            maven {
+                url 'http://updates.jmonkeyengine.org/maven'
+            }
+        }
+    }
 }
 
 subprojects {

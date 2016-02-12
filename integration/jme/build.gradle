@@ -1,17 +1,8 @@
-repositories {
-
-}
-
 // TODO disable if libs isn't set up correctly
 
-ext.disableJme = !file('libs').exists() || !file('libs/jME3-lwjgl.jar').exists()
-
-if( ext.disableJme && !hasProperty('locationJme') ) {
-    println "Can't find JME!  Disabling compilation of JME package"
-    println "  To copy the JME jars into the appropriate location you need to:"
-    println "  1) Install JME"
-    println "  2) gradle -PlocationJme=/path/to/jme  copyFromJme"
-    println "  3) Run gradle again and this message should go away"
+if(!rootProject.shouldActivateJMEIntegration()) {
+    println "jMonkeyEngine 3 integration disabled"
+    println "  To enable jME3 integration, set the gradle extension property on the root project \"useJME\" to \"true\""
 
     sourcesJar.enabled = false
     javadocJar.enabled = false
@@ -27,31 +18,34 @@ dependencies {
     compile project(':io')
     compile project(':gui')
 
-    compile fileTree(dir: 'libs', include: '*.jar')
-}
-
-// gradle -PlocationJme=/path/to/jme  copyFromJme
-task copyFromJme() {
-
-    if (project.hasProperty('locationJme')) {
-        if( !file(locationJme).exists() || !file(locationJme+"/jmonkeyplatform").exists() ) {
-            println "Can't find JME directory at "+locationJme
-        } else {
-            println "file = $locationJme"
-
-            file('libs').deleteDir()
-            file('libs').mkdir()
-
-            doLast {
-                copy {
-                    from fileTree(dir: "$locationJme/jmonkeyplatform/libs", include: '*.jar')
-                    into 'libs'
-                }
-            }
-        }
+    if(rootProject.shouldActivateJMEIntegration()) {
+        compile "com.jme3:jme3-core:3.1.0-SNAPSHOT"
+        compile "com.jme3:jme3-desktop:3.1.0-SNAPSHOT"
+        compile "com.jme3:jme3-lwjgl:3.1.0-SNAPSHOT"
     }
 }
 
+// gradle -PlocationJme=/path/to/jme  copyFromJme
+//task copyFromJme() {
+//
+//    if (project.hasProperty('locationJme')) {
+//        if( !file(locationJme).exists() || !file(locationJme+"/jmonkeyplatform").exists() ) {
+//            println "Can't find JME directory at "+locationJme
+//        } else {
+//            println "file = $locationJme"
+//
+//            file('libs').deleteDir()
+//            file('libs').mkdir()
+//
+//            doLast {
+//                copy {
+//                    from fileTree(dir: "$locationJme/jmonkeyplatform/libs", include: '*.jar')
+//                    into 'libs'
+//                }
+//            }
+//        }
+//    }
+//}
 
 idea {
     module {
