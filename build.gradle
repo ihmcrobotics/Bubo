@@ -1,3 +1,7 @@
+plugins {
+    id "com.jfrog.bintray" version "1.6"
+}
+
 import java.text.SimpleDateFormat
 
 // TODO insert analytics and adsense into javadoc
@@ -270,6 +274,44 @@ publishing {
                     }
                 }
             }
+        }
+    }
+}
+
+bintray {
+    user = project.hasProperty("bintray_user") ? project.bintray_user : "invalid"
+    key = project.hasProperty("bintray_key") ? project.bintray_key : "invalid"
+
+    if (user.equals("invalid")) {
+        project.logger.debug("Bintray user name property not set. Please set the 'bintray_user' property in ~/.gradle/gradle.properties. See https://github.com/bintray/gradle-bintray-plugin")
+    }
+
+    if (key.equals("invalid")) {
+        project.logger.debug("Bintray API key property not set. Please set the 'bintray_key' property in ~/.gradle/gradle.properties. See https://github.com/bintray/gradle-bintray-plugin")
+    }
+
+    dryRun = false
+    publish = false
+
+    publications = ["publishBuboFatJar"]
+
+    pkg {
+        repo = "maven-vendor"
+        userOrg = "ihmcrobotics"
+        name = "ProjectBUBO"
+        desc = "Maven artifact providing the vendored Project BUBO \"fat\" .jar"
+
+        websiteUrl = "https://github.com/lessthanoptimal/Bubo"
+        issueTrackerUrl = "https://github.com/lessthanoptimal/Bubo/issues"
+        vcsUrl = "https://github.com/lessthanoptimal/Bubo.git"
+
+        licenses = ['Apache-2.0']
+        labels = ['java', 'robotics', 'vendored']
+
+        version {
+            def today = new Date()
+            name = "${new SimpleDateFormat("yyMMdd", Locale.getDefault()).format(today)}"
+            released = today
         }
     }
 }
