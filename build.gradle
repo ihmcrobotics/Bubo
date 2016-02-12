@@ -235,7 +235,7 @@ publishing {
     publications {
         publishBuboFatJar(MavenPublication) {
             groupId 'org.projectbubo'
-            artifactId "ProjectBubo"
+            artifactId "ProjectBUBO"
             version "${new SimpleDateFormat("yyMMdd", Locale.getDefault()).format(new Date())}"
 
             artifact oneJarBin
