@@ -3,3 +3,8 @@
 *.jar
 .gradle/
 *.class
+build/
+core/build/
+gui/build/
+integration/jme/build/
+io/build/
